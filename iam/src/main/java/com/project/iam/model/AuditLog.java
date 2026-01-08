@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "logs")
+@Table(name = "audit_logs")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,11 +14,13 @@ import java.time.LocalDateTime;
 @Builder
 public class AuditLog {
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String action;
 
+    @Column(nullable = false)
     private LocalDateTime timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
