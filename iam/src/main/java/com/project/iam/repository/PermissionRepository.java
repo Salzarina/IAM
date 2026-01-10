@@ -15,4 +15,6 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 
     List<Permission> findAllByNameIn(Set<String> names);
     List<Permission> findAllByRolesName(String name);
+
+    void deleteByName(String name);
 }
