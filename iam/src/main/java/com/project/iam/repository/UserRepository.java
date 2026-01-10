@@ -1,5 +1,6 @@
 package com.project.iam.repository;
 
+import com.project.iam.enumerations.Roles;
 import com.project.iam.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,5 +15,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 
-    List<User> findAllByRolesName(String roleName);
+    List<User> findAllByRolesName(Roles roleName);
 }

@@ -1,5 +1,6 @@
 package com.project.iam.service;
 
+import com.project.iam.enumerations.Roles;
 import com.project.iam.model.User;
 import com.project.iam.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,22 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found!"));
     }
 
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public List<User> getAllUsersByRolename(Roles role) {
+        return userRepository.findAllByRolesName(role);
     }
 
     public User updateUser(Long id, User updatedUser) {
