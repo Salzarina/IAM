@@ -1,5 +1,6 @@
 package com.project.iam.model;
 
+import com.project.iam.enumerations.AuditAction;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,10 +19,13 @@ public class AuditLog {
     private Long id;
 
     @Column(nullable = false)
-    private String action;
+    private AuditAction action;
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
+
+    @Column(nullable = false)
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

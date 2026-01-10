@@ -1,4 +1,4 @@
-package com.project.iam;
+package com.project.iam.enumerations;
 
 public enum Roles {
     ADMIN,
