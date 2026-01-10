@@ -1,5 +1,6 @@
 package com.project.iam.service;
 
+import com.project.iam.enumerations.AuditAction;
 import com.project.iam.model.Permission;
 import com.project.iam.repository.PermissionRepository;
 import org.springframework.stereotype.Service;
@@ -10,15 +11,19 @@ import java.util.List;
 public class PermissionService {
 
     private final PermissionRepository permissionRepository;
+    private final AuditLogService auditLogService;
 
-    public PermissionService(PermissionRepository permissionRepository) {
+    public PermissionService(PermissionRepository permissionRepository, AuditLogService auditLogService) {
         this.permissionRepository = permissionRepository;
+        this.auditLogService = auditLogService;
     }
 
     public Permission createPermission(Permission permission) {
         if (permissionRepository.existsByName(permission.getName())) {
             throw new IllegalArgumentException("Permission with name " + permission.getName() + " already exists");
         }
+
+        auditLogService.logSystemAction(AuditAction.PERMISSION_CREATE, "Permission " + permission.getName() + " has been created");
 
         return permissionRepository.save(permission);
     }
@@ -47,6 +52,8 @@ public class PermissionService {
 
         existingPermission.setName(newPermission.getName());
 
+        auditLogService.logSystemAction(AuditAction.PERMISSION_UPDATE, "Permission " + newPermission.getName() + " has been updated");
+
         return permissionRepository.save(existingPermission);
     }
 
@@ -54,6 +61,9 @@ public class PermissionService {
         if (!permissionRepository.existsById(id)) {
             throw new IllegalArgumentException("Permission with id " + id + " does not exist");
         }
+
+        auditLogService.logSystemAction(AuditAction.PERMISSION_DELETE, "Permission " + id + " has been deleted");
+
         permissionRepository.deleteById(id);
     }
 
@@ -61,6 +71,9 @@ public class PermissionService {
         if (!permissionRepository.existsByName(name)) {
             throw new IllegalArgumentException("Permission with name " + name + " does not exist");
         }
+
+        auditLogService.logSystemAction(AuditAction.PERMISSION_DELETE, "Permission " + name + " has been deleted");
+
         permissionRepository.deleteByName(name);
     }
 

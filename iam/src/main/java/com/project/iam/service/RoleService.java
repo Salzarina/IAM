@@ -1,8 +1,9 @@
 package com.project.iam.service;
 
+import com.project.iam.enumerations.AuditAction;
 import com.project.iam.model.Permission;
 import com.project.iam.model.Role;
-import com.project.iam.repository.PermissionRepository;
+import com.project.iam.repository.AuditLogRepository;
 import com.project.iam.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,15 +15,22 @@ import java.util.List;
 public class RoleService {
 
     private final RoleRepository roleRepository;
+    private final AuditLogRepository auditLogRepository;
+    private final AuditLogService auditLogService;
 
-    public RoleService(RoleRepository roleRepository) {
+    public RoleService(RoleRepository roleRepository, AuditLogRepository auditLogRepository, AuditLogService auditLogService) {
         this.roleRepository = roleRepository;
+        this.auditLogRepository = auditLogRepository;
+        this.auditLogService = auditLogService;
     }
 
     public Role createRole(Role role) {
         if (roleRepository.existsByName(role.getRoleName())) {
             throw new IllegalArgumentException("Role already exists");
         }
+
+        auditLogService.logSystemAction(AuditAction.ROLE_CREATE, "Role has been created");
+
         return roleRepository.save(role);
     }
 
@@ -50,6 +58,8 @@ public class RoleService {
 
         existingRole.setRoleName(role.getRoleName());
 
+        auditLogService.logSystemAction(AuditAction.ROLE_UPDATE, "Role has been updated");
+
         return roleRepository.save(existingRole);
     }
 
@@ -57,6 +67,9 @@ public class RoleService {
         if(!roleRepository.existsById(id)) {
             throw new IllegalArgumentException("Role Not Found");
         }
+
+        auditLogService.logSystemAction(AuditAction.ROLE_DELETE, "Role has been deleted");
+
         roleRepository.deleteById(id);
     }
 
@@ -64,6 +77,9 @@ public class RoleService {
         if(!roleRepository.existsByName(roleName)) {
             throw new IllegalArgumentException("Role Not Found");
         }
+
+        auditLogService.logSystemAction(AuditAction.ROLE_DELETE, "Role has been deleted");
+
         roleRepository.deleteByRoleName(roleName);
     }
 

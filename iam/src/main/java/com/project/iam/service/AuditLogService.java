@@ -6,7 +6,6 @@ import com.project.iam.model.User;
 import com.project.iam.repository.AuditLogRepository;
 import org.springframework.stereotype.Service;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class AuditLogService {
         this.auditLogRepository = auditLogRepository;
     }
 
-    public void addAuditLog(User user, AuditAction name, String description) {
+    public void logUserAction(User user, AuditAction name, String description) {
         AuditLog auditLog = AuditLog.builder()
                 .user(user)
                 .action(name)
@@ -30,11 +29,11 @@ public class AuditLogService {
         auditLogRepository.save(auditLog);
     }
 
-    public void addSystemLog(AuditAction name) {
+    public void logSystemAction(AuditAction name, String description) {
         AuditLog auditLog = AuditLog.builder()
                 .action(name)
                 .timestamp(LocalDateTime.now())
-                .description("System Log")
+                .description(description)
                 .build();
         auditLogRepository.save(auditLog);
     }

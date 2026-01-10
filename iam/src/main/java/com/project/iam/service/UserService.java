@@ -1,5 +1,6 @@
 package com.project.iam.service;
 
+import com.project.iam.enumerations.AuditAction;
 import com.project.iam.enumerations.Roles;
 import com.project.iam.model.User;
 import com.project.iam.repository.UserRepository;
@@ -11,9 +12,11 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, AuditLogService auditLogService) {
         this.userRepository = userRepository;
+        this.auditLogService = auditLogService;
     }
 
     public User create(User user) {
@@ -25,6 +28,8 @@ public class UserService {
         }
         user.setActive(true);
         user.setBlocked(false);
+
+        auditLogService.logUserAction(user, AuditAction.USER_CREATE, "User created");
 
         return userRepository.save(user);
     }
@@ -72,13 +77,17 @@ public class UserService {
         existingUser.setBlocked(updatedUser.isBlocked());
         existingUser.setActive(updatedUser.isActive());
 
+        auditLogService.logUserAction(existingUser, AuditAction.USER_UPDATE, "User updated");
+
         return userRepository.save(existingUser);
     }
 
     public void deleteUserById(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("User not found!");
-        }
+
+        User exUser = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+        auditLogService.logUserAction(exUser, AuditAction.USER_DELETE, "User deleted");
+
         userRepository.deleteById(id);
     }
 
