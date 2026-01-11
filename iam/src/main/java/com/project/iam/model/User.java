@@ -30,7 +30,7 @@ public class User {
     private boolean isActive;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Token> tokens = new HashSet<Token>();
+    private Set<RefreshToken> refreshTokens = new HashSet<RefreshToken>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
