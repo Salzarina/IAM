@@ -2,6 +2,7 @@ package com.project.iam.service;
 
 import com.project.iam.enumerations.AuditAction;
 import com.project.iam.model.Permission;
+import com.project.iam.model.Role;
 import com.project.iam.repository.PermissionRepository;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,10 @@ public class PermissionService {
 
     public List<Permission> getAllPermissions() {
         return permissionRepository.findAll();
+    }
+
+    public List<Permission> getAllPermissionsByRole(Role role) {
+        return permissionRepository.findAllByRolesName(role.getRoleName());
     }
 
     public Permission updatePermission(Long id, Permission newPermission) {

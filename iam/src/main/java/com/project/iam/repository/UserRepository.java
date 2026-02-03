@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
 
     List<User> findAllByRolesName(Roles roleName);
+
+    void deleteByUsername(String username);
 }

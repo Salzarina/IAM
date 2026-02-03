@@ -91,6 +91,14 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    public void deleteUserByUsername(String username) {
+        User exUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+        auditLogService.logUserAction(exUser, AuditAction.USER_DELETE, "User deleted");
+
+        userRepository.deleteByUsername(username);
+    }
+
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }

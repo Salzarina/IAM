@@ -50,6 +50,10 @@ public class AuditLogService {
         return auditLogRepository.findAllByUserIdAndAction(user.getId(), action);
     }
 
+    public List<AuditLog> getAllAuditLogsByUserName(String userName) {
+        return auditLogRepository.findAllByUserName(userName);
+    }
+
     public List<AuditLog> getAllAuditLogsByAction(AuditAction action) {
         return auditLogRepository.findAllByAction(action);
     }
@@ -69,4 +73,5 @@ public class AuditLogService {
     public Long getCountAllAuditLogsByAction(AuditAction action) {
         return auditLogRepository.countAllByAction(action);
     }
+
 }
