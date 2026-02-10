@@ -1,5 +1,6 @@
 package com.project.iam.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,8 +21,9 @@ public class RefreshToken {
     @Column(nullable = false, unique = true)
     private String tokenHash;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @Column(nullable = false)

@@ -1,5 +1,6 @@
 package com.project.iam.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,13 +31,16 @@ public class User {
     private boolean isActive;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<RefreshToken> refreshTokens = new HashSet<RefreshToken>();
+    @JsonManagedReference
+    private Set<RefreshToken> refreshTokens = new HashSet<>();
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
+
 }

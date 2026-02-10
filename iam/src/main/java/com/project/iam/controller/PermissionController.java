@@ -5,45 +5,57 @@ import com.project.iam.model.Role;
 import com.project.iam.service.PermissionService;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
+@RestController
+@RequestMapping("/permissions")
+@RequiredArgsConstructor
 public class PermissionController {
 
-    private PermissionService permissionService;
+    private final PermissionService permissionService;
 
-    public Permission createPermission(Permission permission) {
-        return permissionService.createPermission(permission);
+    @PostMapping
+    public Permission createPermission(@RequestParam String permissionName) {
+        return permissionService.createPermission(permissionName);
     }
 
-    public Permission getPermissionById(Long id) {
-        return permissionService.getPermissionById(id);
-    }
-
-    public Permission getPermissionByName(String name) {
-        return permissionService.getPermissionByName(name);
-    }
-
+    @GetMapping
     public List<Permission> getAllPermissions() {
         return permissionService.getAllPermissions();
     }
 
-    public List<Permission> getAllPermissionsByRole(Role role) {
-        return permissionService.getAllPermissionsByRole(role);
+    @GetMapping("/{id}")
+    public Permission getPermissionById(@PathVariable Long id) {
+        return permissionService.getPermissionById(id);
     }
 
-    public Permission updatePermission(Long id, Permission permission) {
+    @GetMapping("/by-name")
+    public Permission getPermissionByName(@RequestParam String name) {
+        return permissionService.getPermissionByName(name);
+    }
+
+    @GetMapping("/by-role")
+    public List<Permission> getAllPermissionsByRole(String roleName) { return permissionService.getAllPermissionsByRole(roleName); }
+
+    @PutMapping("/update/{id}")
+    public Permission updatePermission(
+            @PathVariable Long id,
+            @RequestBody Permission permission
+    ) {
         return permissionService.updatePermission(id, permission);
     }
 
-    public void deletePermissionById(Long id) {
+    @DeleteMapping("/{id}")
+    public void deletePermissionById(@PathVariable Long id) {
         permissionService.deletePermissionById(id);
     }
 
-    public void deletePermissionByName(String name) {
+    @DeleteMapping("/by-name")
+    public void deletePermissionByName(@RequestParam String name) {
         permissionService.deletePermissionByName(name);
     }
-
 }
+

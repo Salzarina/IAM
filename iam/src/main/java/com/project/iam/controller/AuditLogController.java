@@ -3,54 +3,55 @@ package com.project.iam.controller;
 
 import com.project.iam.enumerations.AuditAction;
 import com.project.iam.model.AuditLog;
-import com.project.iam.model.User;
 import com.project.iam.service.AuditLogService;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
+@RestController
+@RequestMapping("/auditlogs")
+@RequiredArgsConstructor
 public class AuditLogController {
 
-    private AuditLogService auditLogService;
+    private final AuditLogService auditLogService;
 
-    public List<AuditLog> getAllAuditLogs(){
+    @GetMapping
+    public List<AuditLog> getAllAuditLogs() {
         return auditLogService.getAllAuditLogs();
     }
 
-    public List<AuditLog> getAllAuditLogsByUser(User user) {
-        return auditLogService.getAllAuditLogsByUser(user);
+    @GetMapping("/user/{username}")
+    public List<AuditLog> getByUsername(@PathVariable String username) {
+        return auditLogService.getAllAuditLogsByUserName(username);
     }
 
-    public List<AuditLog> getAllAuditLogsByUserAndAction(User user, AuditAction action) {
-        return auditLogService.getAllAuditLogsByUserAndAction(user, action);
-    }
-
-    public List<AuditLog> getAllAuditLogsByUserName(String userName){
-        return auditLogService.getAllAuditLogsByUserName(userName);
-    }
-
-    public List<AuditLog> getAllAuditLogsByAction(AuditAction action) {
+    @GetMapping("/action/{action}")
+    public List<AuditLog> getByAction(@PathVariable AuditAction action) {
         return auditLogService.getAllAuditLogsByAction(action);
     }
 
-    public List<AuditLog> getAllAuditLogsByTimeBefore(LocalDateTime timeBefore) {
-        return auditLogService.getAllAuditLogsByTimeBefore(timeBefore);
-    }
-
-    public List<AuditLog> getAllAuditLogsByTimeAfter(LocalDateTime timeAfter) {
+    @GetMapping("/after/{timeAfter}")
+    public List<AuditLog> getAfter(@PathVariable LocalDateTime timeAfter) {
         return auditLogService.getAllAuditLogsByTimeAfter(timeAfter);
     }
 
-    public List<AuditLog> getAllAuditLogsBetweenTimestamp(LocalDateTime startTimestamp, LocalDateTime endTimestamp) {
-        return auditLogService.getAllAuditLogsBetweenTimestamp(startTimestamp, endTimestamp);
+    @GetMapping("/before/{timeBefore}")
+    public List<AuditLog> getBefore(@PathVariable LocalDateTime timeBefore) {
+        return auditLogService.getAllAuditLogsByTimeBefore(timeBefore);
     }
 
-    public Long getCountAllAuditLogsByAction(AuditAction action) {
+    @GetMapping("/between")
+    public List<AuditLog> getBetween(
+            @RequestParam LocalDateTime from,
+            @RequestParam LocalDateTime to
+    ) {
+        return auditLogService.getAllAuditLogsBetweenTimestamp(from, to);
+    }
+
+    @GetMapping("/count/{action}")
+    public Long countByAction(@PathVariable AuditAction action) {
         return auditLogService.getCountAllAuditLogsByAction(action);
     }
-
 }

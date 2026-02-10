@@ -5,53 +5,75 @@ import com.project.iam.model.Role;
 import com.project.iam.service.RoleService;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
+@RestController
+@RequestMapping("/roles")
+@RequiredArgsConstructor
 public class RoleController {
 
-    private RoleService roleService;
+    private final RoleService roleService;
 
-    public Role createRole(Role role) {
-        return roleService.createRole(role);
+    @PostMapping
+    public Role createRole(@RequestParam String roleName) {
+        return roleService.createRole(roleName);
     }
 
-    public Role getRoleById(Long id) {
-        return roleService.getRoleById(id);
-    }
-
-    public Role getRoleByName(String name) {
-        return roleService.getRoleByName(name);
-    }
-
+    @GetMapping
     public List<Role> getAllRoles() {
         return roleService.getAllRoles();
     }
 
-    public Role updateRole(Long id, Role role) {
+    @GetMapping("/{id}")
+    public Role getRoleById(@PathVariable Long id) {
+        return roleService.getRoleById(id);
+    }
+
+    @GetMapping("/by-name")
+    public Role getRoleByName(@RequestParam String name) {
+        return roleService.getRoleByName(name);
+    }
+
+    @PutMapping("/update/{id}")
+    public Role updateRole(
+            @PathVariable Long id,
+            @RequestBody Role role
+    ) {
         return roleService.updateRole(id, role);
     }
 
-    public void deleteRoleById(Long id) {
+    @DeleteMapping("/{id}")
+    public void deleteRoleById(@PathVariable Long id) {
         roleService.deleteRoleById(id);
     }
 
-    public void deleteRoleByName(String name) {
+    @DeleteMapping("/by-name")
+    public void deleteRoleByName(@RequestParam String name) {
         roleService.deleteRoleByName(name);
     }
 
-    public void addPermission(Role role, Permission permission) {
-        roleService.addPermission(role, permission);
+    @PostMapping("/{roleId}/permissions")
+    public void addPermissionToRole(
+            @PathVariable Long roleId,
+            @RequestParam Long permissionId
+    ) {
+        roleService.addPermission(roleId, permissionId);
     }
 
-    public void deletePermission(Role role, Permission permission) {
-        roleService.deletePermission(role, permission);
+    @DeleteMapping("/{roleId}/permissions/{permissionId}")
+    public void removePermissionFromRole(
+            @PathVariable Long roleId,
+            @PathVariable Long permissionId
+    ) {
+        roleService.deletePermission(roleId, permissionId);
     }
 
-    public List<Permission> getAllPermissionsInRole(Role role) {
-        return roleService.getAllPermissionsInRole(role);
+    @GetMapping("/{roleId}/permissions")
+    public List<Permission> getAllPermissionsInRole(@PathVariable Long roleId) {
+        return roleService.getAllPermissionsInRole(getRoleById(roleId));
     }
-
 }
+

@@ -15,7 +15,7 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     /* Relation with User */
     List<AuditLog> findAllByUserId(Long UserId);
     List<AuditLog> findAllByUserIdAndAction(Long UserId, AuditAction Action);
-    List<AuditLog> findAllByUserName(String userName);
+    List<AuditLog> findAllByUserUsername(String userName);
 
     /* Relation with Time */
     List<AuditLog> findAllByTimestampAfter(LocalDateTime timestamp);

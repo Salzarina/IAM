@@ -18,5 +18,5 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     @EntityGraph(attributePaths = "permissions")
     List<Role> findAllByNameIn(Set<String> names);
 
-    void deleteByRoleName(String roleName);
+    void deleteByName(String roleName);
 }

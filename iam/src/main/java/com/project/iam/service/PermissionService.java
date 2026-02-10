@@ -4,7 +4,9 @@ import com.project.iam.enumerations.AuditAction;
 import com.project.iam.model.Permission;
 import com.project.iam.model.Role;
 import com.project.iam.repository.PermissionRepository;
+import com.project.iam.repository.RoleRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,20 +15,33 @@ public class PermissionService {
 
     private final PermissionRepository permissionRepository;
     private final AuditLogService auditLogService;
+    private final RoleRepository roleRepository;
 
-    public PermissionService(PermissionRepository permissionRepository, AuditLogService auditLogService) {
+    public PermissionService(PermissionRepository permissionRepository, AuditLogService auditLogService, RoleRepository roleRepository) {
         this.permissionRepository = permissionRepository;
         this.auditLogService = auditLogService;
+        this.roleRepository = roleRepository;
     }
 
-    public Permission createPermission(Permission permission) {
-        if (permissionRepository.existsByName(permission.getName())) {
-            throw new IllegalArgumentException("Permission with name " + permission.getName() + " already exists");
+    public Permission createPermission(String permissionName) {
+        if (permissionRepository.existsByName(permissionName)) {
+            throw new IllegalArgumentException(
+                    "Permission with name " + permissionName + " already exists"
+            );
         }
 
-        auditLogService.logSystemAction(AuditAction.PERMISSION_CREATE, "Permission " + permission.getName() + " has been created");
+        Permission permission = Permission.builder()
+                .name(permissionName)
+                .build();
 
-        return permissionRepository.save(permission);
+        Permission savedPermission = permissionRepository.save(permission);
+
+        auditLogService.logSystemAction(
+                AuditAction.PERMISSION_CREATE,
+                "Permission " + permissionName + " has been created"
+        );
+
+        return savedPermission;
     }
 
     public Permission getPermissionById(Long id) {
@@ -43,8 +58,11 @@ public class PermissionService {
         return permissionRepository.findAll();
     }
 
-    public List<Permission> getAllPermissionsByRole(Role role) {
-        return permissionRepository.findAllByRolesName(role.getRoleName());
+    public List<Permission> getAllPermissionsByRole(String name) {
+        if (!roleRepository.existsByName(name)) {
+            throw new IllegalArgumentException("Role with name " + name + " does not exist");
+        }
+        return permissionRepository.findAllByRolesName(name);
     }
 
     public Permission updatePermission(Long id, Permission newPermission) {
@@ -67,19 +85,20 @@ public class PermissionService {
             throw new IllegalArgumentException("Permission with id " + id + " does not exist");
         }
 
-        auditLogService.logSystemAction(AuditAction.PERMISSION_DELETE, "Permission " + id + " has been deleted");
-
         permissionRepository.deleteById(id);
+
+        auditLogService.logSystemAction(AuditAction.PERMISSION_DELETE, "Permission " + id + " has been deleted");
     }
 
+    @Transactional
     public void deletePermissionByName(String name) {
         if (!permissionRepository.existsByName(name)) {
             throw new IllegalArgumentException("Permission with name " + name + " does not exist");
         }
 
-        auditLogService.logSystemAction(AuditAction.PERMISSION_DELETE, "Permission " + name + " has been deleted");
-
         permissionRepository.deleteByName(name);
+
+        auditLogService.logSystemAction(AuditAction.PERMISSION_DELETE, "Permission " + name + " has been deleted");
     }
 
 }

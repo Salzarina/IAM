@@ -121,7 +121,7 @@ public class TokenService {
                 .claim("username", user.getUsername())
                 .claim("roles", user.getRoles()
                         .stream()
-                        .map(Role::getRoleName)
+                        .map(Role::getName)
                         .toList())
                 .setIssuedAt(now)
                 .setExpiration(expiry)

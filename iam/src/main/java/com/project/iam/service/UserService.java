@@ -26,10 +26,8 @@ public class UserService {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("Username already exists!");
         }
-        user.setActive(true);
-        user.setBlocked(false);
 
-        auditLogService.logUserAction(user, AuditAction.USER_CREATE, "User created");
+//        auditLogService.logUserAction(user, AuditAction.USER_CREATE, "User created");
 
         return userRepository.save(user);
     }
@@ -86,6 +84,7 @@ public class UserService {
 
         User exUser = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+
         auditLogService.logUserAction(exUser, AuditAction.USER_DELETE, "User deleted");
 
         userRepository.deleteById(id);
@@ -94,6 +93,7 @@ public class UserService {
     public void deleteUserByUsername(String username) {
         User exUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+
         auditLogService.logUserAction(exUser, AuditAction.USER_DELETE, "User deleted");
 
         userRepository.deleteByUsername(username);
@@ -101,6 +101,10 @@ public class UserService {
 
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 
 }

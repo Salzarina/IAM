@@ -9,12 +9,12 @@ import java.util.Optional;
 
 public interface TokenRepository extends JpaRepository<RefreshToken, Long> {
 
-    boolean existsByValue(String value);
+    boolean existsByTokenHash(String value);
 
-    Optional<RefreshToken> findByValue(String value);
+    Optional<RefreshToken> findByTokenHash(String value);
     Optional<RefreshToken> findByUserId(Long userId);
     Optional<RefreshToken> findByUserAndRevokedFalse(User user);
 
     long deleteByUserId(Long userId);
-    long deleteAllByExpiryDateBefore(LocalDateTime expiryDate);
+    long deleteAllByExpiresAtBefore(LocalDateTime expiryDate);
 }

@@ -1,8 +1,10 @@
 package com.project.iam.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -18,8 +20,8 @@ public class Role {
     private Long id;
 
     @Column(unique = true)
-    private String roleName;
+    private String name;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Permission> permissions;
+    private Set<Permission> permissions = new HashSet<>();
 }

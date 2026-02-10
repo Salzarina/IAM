@@ -1,12 +1,14 @@
 package com.project.iam.service;
 
 import com.project.iam.enumerations.AuditAction;
-import com.project.iam.model.AuthResponse;
-import com.project.iam.model.LoginRequest;
-import com.project.iam.model.RefreshToken;
-import com.project.iam.model.User;
+import com.project.iam.model.*;
+import com.project.iam.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
+
+import static com.project.iam.enumerations.Roles.USER;
 
 
 @Service
@@ -16,26 +18,44 @@ public class AuthService {
     private final UserService userService;
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
 
     public AuthService(
             AuditLogService auditLogService,
             UserService userService,
             TokenService tokenService,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            RoleService roleService
     ) {
         this.auditLogService = auditLogService;
         this.userService = userService;
         this.tokenService = tokenService;
         this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
     public AuthResponse login(LoginRequest loginRequest) {
 
         User newUser = userService.getUserByUsername(loginRequest.getUsername());
-        if ( newUser == null || !newUser.getPassword().equals(loginRequest.getPassword()) || !newUser.isActive() || newUser.isBlocked() ){
-            auditLogService.logSystemAction(AuditAction.LOGIN_FAILURE, "Invalid username or password");
-            throw new IllegalArgumentException("Invalid User");
+
+        if (newUser == null) {
+            auditLogService.logSystemAction(AuditAction.LOGIN_FAILURE, "User not found");
+            throw new IllegalArgumentException("User not found");
         }
+        if (!newUser.isActive() || newUser.isBlocked()) {
+            auditLogService.logSystemAction(AuditAction.LOGIN_FAILURE, "User is blocked or inactive");
+            throw new IllegalArgumentException("User is blocked or inactive");
+        }
+
+        if (!passwordEncoder.matches(
+                loginRequest.getPassword(),
+                newUser.getPassword()
+        ))
+        {
+            auditLogService.logSystemAction(AuditAction.LOGIN_FAILURE, "Bad credentials");
+            throw new IllegalArgumentException("Invalid credentials");
+        }
+
         AuthResponse authResponse = new AuthResponse();
         authResponse.setAccessToken(tokenService.generateAccessToken(newUser));
         authResponse.setRefreshToken(tokenService.generateRefreshToken(newUser));
@@ -73,13 +93,24 @@ public class AuthService {
         return authResponse;
     }
 
-    public AuthResponse register(User user) {
+    public AuthResponse register(RegRequest request) {
 
-        if (userService.existsByUsername(user.getUsername())) {
-            throw new IllegalArgumentException("User already exists");
+        if (userService.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (userService.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .isActive(true)
+                .isBlocked(false)
+                .build();
 
         User savedUser = userService.create(user);
 
@@ -94,5 +125,6 @@ public class AuthService {
 
         return new AuthResponse(accessToken, refreshToken);
     }
+
 
 }

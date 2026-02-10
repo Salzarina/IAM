@@ -34,6 +34,7 @@ public class AuditLogService {
                 .action(name)
                 .timestamp(LocalDateTime.now())
                 .description(description)
+                .user(null)
                 .build();
         auditLogRepository.save(auditLog);
     }
@@ -51,7 +52,7 @@ public class AuditLogService {
     }
 
     public List<AuditLog> getAllAuditLogsByUserName(String userName) {
-        return auditLogRepository.findAllByUserName(userName);
+        return auditLogRepository.findAllByUserUsername(userName);
     }
 
     public List<AuditLog> getAllAuditLogsByAction(AuditAction action) {
