@@ -1,0 +1,6 @@
+
+2. Check userController (endpoints) (Did)
+
+3. Check AuthController (logout, login, refresh)
+
+4. Try to connect it to some projects

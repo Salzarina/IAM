@@ -2,6 +2,7 @@ package com.project.iam.controller;
 
 import com.project.iam.enumerations.Roles;
 import com.project.iam.model.User;
+import com.project.iam.service.RoleService;
 import com.project.iam.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final RoleService roleService;
 
     //                                          CREATE
     @PostMapping
@@ -38,14 +40,22 @@ public class UserController {
         return userService.getUserByEmail(email);
     }
 
-    @GetMapping
+    @GetMapping("/allUsers")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/activeUsers")
+    public List<User> getAllActiveUsers() {
+        return userService.getAllActiveUsers();
+    }
+
     @GetMapping(path = "/by-role", params = "role")
-    public List<User> getAllUsersByRole(@RequestParam Roles role) {
-        return userService.getAllUsersByRolename(role);
+    public List<User> getAllUsersByRole(@RequestParam String roleName) {
+        if (!roleService.existsByName(roleName)) {
+            throw new IllegalArgumentException("Role Not Found");
+        }
+        return userService.getAllUsersByRolename(roleName);
     }
 
     @GetMapping("/exists")
@@ -59,6 +69,7 @@ public class UserController {
         return userService.updateUser(id, user);
     }
 
+
     //                                          DELETE
     @DeleteMapping("/{id}")
     public void deleteUserById(@PathVariable Long id) {
@@ -70,5 +81,16 @@ public class UserController {
         userService.deleteUserByUsername(username);
     }
 
+    //                                          ROLES
+
+    @PutMapping("/{userId}/roles/{roleId}")
+    public void addRoleToUser(@PathVariable Long userId, @PathVariable Long roleId) {
+        userService.addRoleToUser(userId, roleId);
+    }
+
+    @DeleteMapping("/{userId}/roles/{roleId}")
+    public void removeRoleFromUser(@PathVariable Long userId, @PathVariable Long roleId) {
+        userService.removeRoleFromUser(userId, roleId);
+    }
 }
 

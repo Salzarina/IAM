@@ -3,6 +3,7 @@ package com.project.iam.repository;
 import com.project.iam.enumerations.Roles;
 import com.project.iam.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 
-    List<User> findAllByRolesName(Roles roleName);
+    List<User> findAllByRolesName(String roleName);
 
-    void deleteByUsername(String username);
+    @Query("SELECT u FROM User u WHERE u.isActive = true")
+    List<User> findAllActiveUsers();
 }

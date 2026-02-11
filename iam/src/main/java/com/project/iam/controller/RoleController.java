@@ -32,7 +32,7 @@ public class RoleController {
         return roleService.getRoleById(id);
     }
 
-    @GetMapping("/by-name")
+    @GetMapping("/{name}")
     public Role getRoleByName(@RequestParam String name) {
         return roleService.getRoleByName(name);
     }
@@ -50,12 +50,12 @@ public class RoleController {
         roleService.deleteRoleById(id);
     }
 
-    @DeleteMapping("/by-name")
+    @DeleteMapping("/{name}")
     public void deleteRoleByName(@RequestParam String name) {
         roleService.deleteRoleByName(name);
     }
 
-    @PostMapping("/{roleId}/permissions")
+    @PutMapping("/{roleId}/permissions")
     public void addPermissionToRole(
             @PathVariable Long roleId,
             @RequestParam Long permissionId

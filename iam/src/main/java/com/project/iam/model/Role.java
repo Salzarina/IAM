@@ -19,9 +19,10 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String name;
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Permission> permissions = new HashSet<>();
 }

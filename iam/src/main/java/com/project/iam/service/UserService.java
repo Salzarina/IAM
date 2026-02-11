@@ -1,11 +1,14 @@
 package com.project.iam.service;
 
 import com.project.iam.enumerations.AuditAction;
-import com.project.iam.enumerations.Roles;
+import com.project.iam.model.Role;
 import com.project.iam.model.User;
+import com.project.iam.repository.RoleRepository;
 import com.project.iam.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -13,10 +16,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
+    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository, AuditLogService auditLogService) {
+    public UserService(UserRepository userRepository, AuditLogService auditLogService, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.auditLogService = auditLogService;
+        this.roleRepository = roleRepository;
     }
 
     public User create(User user) {
@@ -51,7 +56,11 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public List<User> getAllUsersByRolename(Roles role) {
+    public List<User> getAllActiveUsers() {
+        return userRepository.findAllActiveUsers();
+    }
+
+    public List<User> getAllUsersByRolename(String role) {
         return userRepository.findAllByRolesName(role);
     }
 
@@ -80,24 +89,74 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
+    @Transactional
+    public void addRoleToUser(Long userId, Long roleId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new IllegalArgumentException("Role not found!"));
+
+        if (!user.getRoles().contains(role)) {
+            user.getRoles().add(role);
+        }
+
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void removeRoleFromUser(Long userId, Long roleId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+
+        if (!user.getRoles().contains(role)) {
+            throw new IllegalArgumentException("User does not have this role");
+        }
+
+        user.getRoles().remove(role);
+
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void deleteUserById(Long id) {
 
-        User exUser = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        auditLogService.logUserAction(exUser, AuditAction.USER_DELETE, "User deleted");
+        if (!user.isActive()) {
+            throw new IllegalStateException("User already deleted");
+        }
 
-        userRepository.deleteById(id);
+        user.setActive(false);
+        user.setBlocked(true);
+
+        auditLogService.logUserAction(user, AuditAction.USER_DELETE, "User " + user.getUsername() + " was deleted"
+        );
     }
 
+    @Transactional
     public void deleteUserByUsername(String username) {
-        User exUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
 
-        auditLogService.logUserAction(exUser, AuditAction.USER_DELETE, "User deleted");
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        userRepository.deleteByUsername(username);
+        if (!user.isActive()) {
+            throw new IllegalStateException("User already deleted");
+        }
+
+        user.setActive(false);
+        user.setBlocked(true);
+
+        auditLogService.logUserAction(user, AuditAction.USER_DELETE, "User " + username + " was soft deleted"
+        );
     }
+
 
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);

@@ -86,7 +86,6 @@ public class RoleService {
             throw new IllegalArgumentException("Role Not Found");
         }
 
-        roleRepository.deleteByName(roleName);
 
         auditLogService.logSystemAction(AuditAction.ROLE_DELETE, "Role has been deleted");
     }
@@ -116,5 +115,9 @@ public class RoleService {
                 .orElseThrow(() -> new IllegalArgumentException("There are no permissions in the role"));
 
         return new ArrayList<>(foundRole.getPermissions() != null ? foundRole.getPermissions() : Collections.emptyList());
+    }
+
+    public boolean existsByName(String roleName) {
+        return roleRepository.existsByName(roleName);
     }
 }
