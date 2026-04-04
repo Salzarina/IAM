@@ -23,6 +23,8 @@ public class TokenService {
     private final TokenRepository tokenRepository;
     private final AuditLogService auditLogService;
 
+    private final String SECRET_KEY = "supersecretkeysupersecretkey1234";
+
     public TokenService(TokenRepository tokenRepository, AuditLogService auditLogService) {
         this.tokenRepository = tokenRepository;
         this.auditLogService = auditLogService;
@@ -111,8 +113,6 @@ public class TokenService {
     public String generateAccessToken(User user) {
         Date now = new Date();
         long ACCESS_TOKEN_TTL = 15 * 60 * 1000;
-
-        String SECRET_KEY = "supersecretkeysupersecretkey1234";
 
         Date expiry = new Date(now.getTime() + ACCESS_TOKEN_TTL);
 

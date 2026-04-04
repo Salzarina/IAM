@@ -1,6 +1,5 @@
 package com.project.iam.repository;
 
-import com.project.iam.enumerations.Roles;
 import com.project.iam.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
